@@ -1,18 +1,38 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
 class App extends React.Component {
-    constructor() {
-        super();
-        this.state = { latitude: 'loading...' };
+    state = { lat: null, errorMessage: ''};
+
+    componentDidMount() {
         window.navigator.geolocation.getCurrentPosition(
-            position =>  this.setState({ latitude: position.coords.latitude }),
-            err => console.log('fail:', err)
+            position => this.setState({ lat: position.coords.latitude }),
+            err => this.setState({ errorMessage: err.message })
         );
     }
 
+    componentDidUpdate() {
+        console.log('My component was just udpdated!');
+    }
+
+    renderContent() {
+        if (this.state.errorMessage && !this.state.lat)
+            return <div>Err: {this.state.errorMessage}</div>;
+
+        if (!this.state.errorMessage && this.state.lat)
+            return <SeasonDisplay lat={this.state.lat} />
+
+        return <Spinner message="Please accept location request" />
+    }
+
     render() {
-        return <div>Latitude: {this.state.latitude}</div>
+        return (
+            <div className="border red">
+                {this.renderContent()}
+            </div>
+        );
     }
 }
 
